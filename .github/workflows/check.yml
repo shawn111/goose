@@ -1,0 +1,101 @@
+# This is a **reuseable** workflow that bundles the Desktop App for Linux.
+# It doesn't get triggered on its own. It gets used in multiple workflows:
+#  - release.yml
+#  - canary.yml (when added)
+#  - pr-comment-bundle-desktop.yml (when added)
+on:
+  push:
+    branches:
+      - cargo-check
+
+name: "Rust Check"
+
+jobs:
+  check:
+    name: Build Desktop (Linux)
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Check out source
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # pin@v4
+        with:
+          # Only pass ref if it's explicitly set, otherwise let checkout action use its default behavior
+          ref: ${{ inputs.ref != '' && inputs.ref || '' }}
+          fetch-depth: 0
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libnss3-dev \
+            libatk-bridge2.0-dev \
+            libdrm2 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxrandr2 \
+            libgbm1 \
+            libxss1 \
+            libasound2t64 \
+            rpm \
+            fakeroot \
+            dpkg-dev \
+            protobuf-compiler
+
+      # 4a) Pre-build cleanup to ensure enough disk space
+      - name: Pre-build cleanup
+        run: |
+          echo "Performing aggressive pre-build cleanup..."
+          # Clean npm cache
+          npm cache clean --force || true
+          # Clean any previous build artifacts
+          rm -rf target || true
+          # Clean Homebrew cache (if exists)
+          brew cleanup || true
+          # Remove unnecessary large directories
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/local/share/boost || true
+          # Clean apt cache
+          sudo apt-get clean || true
+          sudo apt-get autoremove -y || true
+          # Check disk space after cleanup
+          df -h
+
+      # 5) Set up Rust
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@9d7e65c320fdb52dcd45ffaa68deb6c02c8754d9 # pin@v1
+        with:
+          toolchain: stable
+
+      # 7) Cache Rust dependencies
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/index
+          key: ${{ runner.os }}-cargo-index
+          restore-keys: |
+            ${{ runner.os }}-cargo-index
+
+      - name: Cache Cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-
+
+      - name: Rust Check
+        run: |
+          echo "Building goosed binary for Linux..."
+          cargo check
