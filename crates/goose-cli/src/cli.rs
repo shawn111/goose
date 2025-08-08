@@ -9,14 +9,15 @@ use crate::commands::info::handle_info;
 use crate::commands::mcp::run_server;
 use crate::commands::project::{handle_project_default, handle_projects_interactive};
 use crate::commands::recipe::{handle_deeplink, handle_list, handle_validate};
-use crate::commands::daemon::handle_daemon;
+use crate::commands::session::{
+    handle_session_list, handle_session_remove, handle_session_sidecar,
+};
 // Import the new handlers from commands::schedule
 use crate::commands::schedule::{
     handle_schedule_add, handle_schedule_cron_help, handle_schedule_list, handle_schedule_remove,
     handle_schedule_run_now, handle_schedule_services_status, handle_schedule_services_stop,
     handle_schedule_sessions,
 };
-use crate::commands::session::{handle_session_list, handle_session_remove};
 use crate::recipes::extract_from_cli::extract_recipe_info_from_cli;
 use crate::recipes::recipe::{explain_recipe, render_recipe_as_yaml};
 use crate::session;
@@ -107,6 +108,7 @@ enum SessionCommand {
     },
     #[command(about = "Export a session to Markdown format")]
     Export {
+        '''    Export {
         #[command(flatten)]
         identifier: Option<Identifier>,
 
@@ -118,11 +120,26 @@ enum SessionCommand {
         )]
         output: Option<PathBuf>,
     },
+    #[command(about = "Manage the session sidecar")]
+    Sidecar {
+        #[command(subcommand)]
+        command: SessionSidecarCommand,
+    },
+}
+
+#[derive(Subcommand)]
+enum SessionSidecarCommand {
+    #[command(about = "Enter a Goose-enhanced session")]
+    Enter {},
+    #[command(about = "Exit the Goose-enhanced session")]
+    Exit {},
+    #[command(about = "Check the status of the session sidecar")]
+    Status {},
 }
 
 #[derive(Subcommand, Debug)]
 enum SchedulerCommand {
-    #[command(about = "Add a new scheduled job")]
+    #[command(about = "Add a new scheduled job")]''
     Add {
         #[arg(long, help = "Unique ID for the job")]
         id: String,
@@ -728,8 +745,6 @@ pub async fn cli() -> Result<()> {
         Some(Command::Bench { .. }) => "bench",
         Some(Command::Recipe { .. }) => "recipe",
         Some(Command::Web { .. }) => "web",
-        Some(Command::Daemon { .. }) => "daemon",
-        Some(Command::History { .. }) => "history",
         None => "default_session",
     };
 
@@ -792,6 +807,10 @@ pub async fn cli() -> Result<()> {
                     };
 
                     crate::commands::session::handle_session_export(session_identifier, output)?;
+                    Ok(())
+                }
+                Some(SessionCommand::Sidecar { command }) => {
+                    handle_session_sidecar(command).await?;
                     Ok(())
                 }
                 None => {
