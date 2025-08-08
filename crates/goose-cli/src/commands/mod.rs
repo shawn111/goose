@@ -1,5 +1,6 @@
 pub mod bench;
 pub mod configure;
+pub mod daemon;
 pub mod info;
 pub mod mcp;
 pub mod project;

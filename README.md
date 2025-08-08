@@ -37,3 +37,15 @@ Designed for maximum flexibility, goose works with any LLM and supports multi-mo
 - [Twitter/X](https://x.com/blockopensource)
 - [Bluesky](https://bsky.app/profile/opensource.block.xyz)
 - [Nostr](https://njump.me/opensource@block.xyz)
+
+# Fish Shell Integration (Experimental)
+
+Want to bring Goose into your `fish` shell? We have an experimental integration that logs your shell history and lets you call Goose on it with a hotkey.
+
+1.  **Source the script:** Add the following to your `~/.config/fish/config.fish` file:
+
+    ```fish
+    source /path/to/goose/scripts/goose.fish
+    ```
+
+2.  **Use the hotkey:** Press `Ctrl+G` in your shell to have Goose explain the last command you ran.

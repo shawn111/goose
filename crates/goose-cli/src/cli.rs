@@ -9,6 +9,7 @@ use crate::commands::info::handle_info;
 use crate::commands::mcp::run_server;
 use crate::commands::project::{handle_project_default, handle_projects_interactive};
 use crate::commands::recipe::{handle_deeplink, handle_list, handle_validate};
+use crate::commands::daemon::handle_daemon;
 // Import the new handlers from commands::schedule
 use crate::commands::schedule::{
     handle_schedule_add, handle_schedule_cron_help, handle_schedule_list, handle_schedule_remove,
@@ -637,7 +638,7 @@ enum Command {
         reconfigure: bool,
     },
 
-    /// Evaluate system configuration across a range of practical tasks
+    """    /// Evaluate system configuration across a range of practical tasks
     #[command(about = "Evaluate system configuration across a range of practical tasks")]
     Bench {
         #[command(subcommand)]
@@ -668,7 +669,21 @@ enum Command {
         #[arg(long, help = "Open browser automatically when server starts")]
         open: bool,
     },
+
+    '''    /// Manage the Goose daemon
+    #[command(about = "Manage the Goose daemon")]
+    Daemon {
+        #[command(subcommand)]
+        command: DaemonCommand,
+    },
 }
+
+#[derive(Subcommand)]
+enum DaemonCommand {
+    /// Start the daemon
+    #[command(about = "Start the daemon")]
+    Start {},
+}''""
 
 #[derive(clap::ValueEnum, Clone, Debug)]
 enum CliProviderVariant {
@@ -713,6 +728,8 @@ pub async fn cli() -> Result<()> {
         Some(Command::Bench { .. }) => "bench",
         Some(Command::Recipe { .. }) => "recipe",
         Some(Command::Web { .. }) => "web",
+        Some(Command::Daemon { .. }) => "daemon",
+        Some(Command::History { .. }) => "history",
         None => "default_session",
     };
 
@@ -1130,6 +1147,18 @@ pub async fn cli() -> Result<()> {
         }
         Some(Command::Web { port, host, open }) => {
             crate::commands::web::handle_web(port, host, open).await?;
+            return Ok(());
+        }
+        Some(Command::Daemon { command }) => {
+            handle_daemon(command).await?;
+            return Ok(());
+        }
+        Some(Command::History { command }) => {
+            match command {
+                HistoryCommand::Add { session_id, command, cwd } => {
+                    handle_history_add(session_id, command, cwd)?;
+                }
+            }
             return Ok(());
         }
         None => {
