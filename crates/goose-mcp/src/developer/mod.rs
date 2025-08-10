@@ -1617,8 +1617,10 @@ impl DeveloperRouter {
             )
         })?;
 
-        let window_titles: Vec<String> =
-            windows.into_iter().map(|w| w.title().to_string()).collect();
+        let window_titles: Vec<String> = windows
+            .into_iter()
+            .map(|w| w.title().unwrap_or_default())
+            .collect();
 
         Ok(vec![
             Content::text(format!("Available windows:\n{}", window_titles.join("\n")))
@@ -1776,27 +1778,28 @@ impl DeveloperRouter {
     }
 
     async fn screen_capture(&self, params: Value) -> Result<Vec<Content>, ErrorData> {
-        let mut image =
-            if let Some(window_title) = params.get("window_title").and_then(|v| v.as_str()) {
-                // Try to find and capture the specified window
-                let windows = Window::all().map_err(|_| {
+        let mut image = if let Some(window_title) =
+            params.get("window_title").and_then(|v| v.as_str())
+        {
+            // Try to find and capture the specified window
+            let windows = Window::all().map_err(|_| {
+                ErrorData::new(
+                    ErrorCode::INTERNAL_ERROR,
+                    "Failed to list windows".to_string(),
+                    None,
+                )
+            })?;
+
+            let window = windows
+                .into_iter()
+                .find(|w| w.title().unwrap_or_default() == window_title)
+                .ok_or_else(|| {
                     ErrorData::new(
                         ErrorCode::INTERNAL_ERROR,
-                        "Failed to list windows".to_string(),
+                        format!("No window found with title '{}'", window_title),
                         None,
                     )
                 })?;
-
-                let window = windows
-                    .into_iter()
-                    .find(|w| w.title() == window_title)
-                    .ok_or_else(|| {
-                        ErrorData::new(
-                            ErrorCode::INTERNAL_ERROR,
-                            format!("No window found with title '{}'", window_title),
-                            None,
-                        )
-                    })?;
 
                 window.capture_image().map_err(|e| {
                     ErrorData::new(
