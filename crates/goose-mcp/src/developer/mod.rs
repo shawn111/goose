@@ -1262,8 +1262,10 @@ impl DeveloperRouter {
         let windows = Window::all()
             .map_err(|_| ToolError::ExecutionError("Failed to list windows".into()))?;
 
-        let window_titles: Vec<String> =
-            windows.into_iter().map(|w| w.title().to_string()).collect();
+        let window_titles: Vec<String> = windows
+            .into_iter()
+            .map(|w| w.title().unwrap_or_default())
+            .collect();
 
         Ok(vec![
             Content::text(format!("Available windows:\n{}", window_titles.join("\n")))
@@ -1403,7 +1405,7 @@ impl DeveloperRouter {
 
             let window = windows
                 .into_iter()
-                .find(|w| w.title() == window_title)
+                .find(|w| w.title().ok().as_deref() == Some(window_title))
                 .ok_or_else(|| {
                     ToolError::ExecutionError(format!(
                         "No window found with title '{}'",
