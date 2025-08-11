@@ -27,25 +27,25 @@ cliclack = "0.3.5"
 console = "0.15.8"
 dotenvy = "0.15.7"
 bat = "0.24.0"
-anyhow = "1.0"
-serde_json = "1.0"
+anyhow = { workspace = true }
+serde_json = { workspace = true }
 jsonschema = "0.30.0"
-tokio = { version = "1.43", features = ["full"] }
+tokio = { workspace = true }
 futures = "0.3"
-serde = { version = "1.0", features = ["derive"] }  # For serialization
+serde = { workspace = true }  # For serialization
 serde_yaml = "0.9"
 tempfile = "3"
 etcetera = "0.8.0"
 rand = "0.8.5"
 rustyline = "15.0.0"
 tracing = "0.1"
-chrono = "0.4"
+chrono = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json", "time"] }
 tracing-appender = "0.2"
-once_cell = "1.20.2"
+once_cell = { workspace = true }
 shlex = "1.3.0"
-async-trait = "0.1.86"
-base64 = "0.22.1"
+async-trait = { workspace = true }
+base64 = { workspace = true }
 regex = "1.11.1"
 nix = { version = "0.30.1", features = ["process", "signal"] }
 tar = "0.4"
@@ -53,7 +53,7 @@ tar = "0.4"
 axum = { version = "0.8.1", features = ["ws", "macros"] }
 tower-http = { version = "0.5", features = ["cors", "fs"] }
 http = "1.0"
-webbrowser = "1.0"
+webbrowser = { workspace = true }
 indicatif = "0.17.11"
 tokio-util = "0.7.15"
 is-terminal = "0.4.16"
