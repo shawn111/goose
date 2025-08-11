@@ -446,7 +446,7 @@ jobs:
       - name: setup
         run: |
           /entrypoint.sh pkg install -y rust
-          /entrypoint.sh pkg install -y cmake protobuf
+          /entrypoint.sh pkg install -y cmake protobuf clang build-essential
           /entrypoint.sh pkg install -y tar gzip zip bzip2
       - name: build
         run: |
