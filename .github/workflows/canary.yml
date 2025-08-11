@@ -8,6 +8,7 @@ on:
       - "documentation/**"
     branches:
       - main
+      - "build-termux-*"
 
 name: Canary
 
