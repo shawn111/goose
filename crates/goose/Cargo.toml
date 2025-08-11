@@ -99,7 +99,7 @@ unicode-normalization = "0.1"
 
 # Vector database for tool selection
 lancedb = "0.21"
-arrow = "52.2"
+arrow = "56.0"
 
 
 
