@@ -76,6 +76,7 @@ jobs:
             rpm \
             fakeroot \
             dpkg-dev \
+            cmake \
             protobuf-compiler
 
       - name: Pre-build cleanup
