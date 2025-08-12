@@ -13,7 +13,6 @@ jobs:
   build-cli-termux:
     name: Build Termux CLI
     runs-on: ubuntu-24.04-arm
-      architecture: aarch64
     container:
       image: termux/termux-docker:${{ matrix.architecture }}
       volumes:
