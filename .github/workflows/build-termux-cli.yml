@@ -1,0 +1,71 @@
+# https://github.com/termux/termux-docker
+# https://github.com/termux/termux-docker/issues/62
+# https://github.com/robertkirkman/termux-on-gha/blob/master/.github/workflows/build-and-test.yml
+
+on:
+  push:
+    branches:
+      - "build-termux-*"
+
+name: "Termux build"
+
+jobs:
+  build-cli-termux:
+    name: Build Termux CLI
+    strategy:
+      matrix:
+        include:
+#          - runner: ubuntu-24.04
+#            architecture: i686
+#          - runner: ubuntu-24.04
+#            architecture: x86_64
+#          - runner: ubuntu-24.04-arm
+#            architecture: arm
+          - runner: ubuntu-24.04-arm
+            architecture: aarch64
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: termux/termux-docker:${{ matrix.architecture }}
+      volumes:
+        - /tmp/node20:/__e/node20
+    env:
+      TERMUX_MAIN_PACKAGE_FORMAT: debian
+      ANDROID_ROOT: /system
+      ANDROID_DATA: /data
+      PREFIX: /data/data/com.termux/files/usr
+      HOME: /data/data/com.termux/files/home
+      PATH: /data/data/com.termux/files/usr/bin
+      TMPDIR: /data/data/com.termux/files/usr/tmp
+      LANG: en_US.UTF-8
+      TZ: UTC
+    steps:
+      - name: set pkg command to use the packages-cf.termux.dev mirror
+        run: ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
+      - name: upgrade all packages to prepare for installing nodejs
+        run: /entrypoint.sh bash -c "yes | pkg upgrade -y"
+      - name: fix executable bit for all binaries in $PREFIX/bin for all users
+        run: chmod -R o+x ${PREFIX}/bin
+      - name: install bionic-libc nodejs to force compatibility with actions/checkout and actions/upload-artifact
+        run: |
+          /entrypoint.sh pkg install -y nodejs-lts
+          ln -sf ${PREFIX}/bin /__e/node20/bin
+      - uses: actions/checkout@v4.2.2
+      - name: fix permissions of repository after actions/checkout, which ran as root user, while entrypoint.sh activates system user (1000)
+        run: chown -R 1000:1000 .
+      - name: setup
+        run: |
+          /entrypoint.sh pkg install -y rust
+          /entrypoint.sh pkg install -y cmake protobuf clang build-essential
+          /entrypoint.sh pkg install -y tar gzip zip bzip2
+      - name: build
+        run: |
+          /entrypoint.sh cargo build --release
+          # Create a directory for the package contents
+          /entrypoint.sh mkdir -p "target/release/goose-package"
+          /entrypoint.sh cp "target/release/goose" "target/release/goose-package/"
+          /entrypoint.sh tar -cjf "goose-termux-${{ matrix.architecture }}.tar.bz2" -C target/release/goose-package .
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # pin@v4
+        with:
+          name: goose-termux-${{ matrix.architecture }}
+          path: target/release/goose-termux-${{ matrix.architecture }}.tar.bz2
