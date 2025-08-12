@@ -30,15 +30,15 @@ jobs:
       matrix:
         include:
           # Linux builds
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             architecture: x86_64
             target-suffix: unknown-linux-gnu
-            build-on: ubuntu-latest
+            build-on: ubuntu-24.04
             use-cross: true
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             architecture: aarch64
             target-suffix: unknown-linux-gnu
-            build-on: ubuntu-latest
+            build-on: ubuntu-24.04
             use-cross: true
           # macOS builds
           - os: macos-latest
