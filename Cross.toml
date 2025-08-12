@@ -31,6 +31,8 @@ pre-build = [
      curl \
      unzip \
      pkg-config \
+     gcc-10 \
+     gcc-10-dev \
      libssl-dev \
      libdbus-1-dev \
      libxcb1-dev
