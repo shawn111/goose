@@ -1,5 +1,6 @@
 # Configuration for cross-compiling using cross
 [target.aarch64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:latest"
 xargo = false
 pre-build = [
     # Add the ARM64 architecture and install necessary dependencies
@@ -25,6 +26,7 @@ pre-build = [
 ]
 
 [target.x86_64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:latest"
 xargo = false
 pre-build = [
     """\
