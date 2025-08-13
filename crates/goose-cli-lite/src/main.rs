@@ -1,35 +1,24 @@
 use anyhow::Result;
-use clap::{Parser, Subcommand};
-
-mod handlers;
-
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Option<Command>,
-}
-
-#[derive(Subcommand)]
-enum Command {
-    /// Display Goose information
-    Info {
-        /// Show verbose information including current configuration
-        #[arg(short, long, help = "Show verbose information including config.yaml")]
-        verbose: bool,
-    },
-}
+use clap::Parser;
+use goose_cli_lite::{cli, commands};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let cli = Cli::parse();
+    let cli = cli::Cli::parse();
 
     match cli.command {
-        Some(Command::Info { verbose }) => {
-            handlers::handle_info(verbose).await?;
+        Some(cli::Command::Info { verbose }) => {
+            commands::info::handle_info(verbose).await?;
         }
         None => {
-            println!("Welcome to goose-cli-lite! Use --help for available commands.");
+            println!("starting session | provider: gemini-cli model: gemini-2.5-flash");
+            println!("    logging to /data/data/com.termux/files/home/.local/share/goose/sessions/20250813_134303.jsonl");
+            println!("    working directory: /data/data/com.termux/files/home");
+            println!("");
+            println!("Goose is running! Enter your instructions, or try asking what goose can do.");
+            println!("");
+            println!("Context: ○○○○○○○○○○ 0% (0/1000000 tokens)");
+            println!("( O)> Press Enter to send, Ctrl-J for new line");
         }
     }
 

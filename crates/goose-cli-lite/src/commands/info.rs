@@ -1,4 +1,4 @@
-use anyhow::{Result, Context};
+use anyhow::Result;
 use console::style;
 use serde::{Deserialize, Serialize};
 use reqwest;
