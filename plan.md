@@ -150,3 +150,31 @@ graph TD
         ComputerControl["Computer Control"]
     end
 ```
+
+### Recent Changes
+
+- **Added `utils` route:** Integrated the `utils` module's routes into the main server configuration.
+- **Refactored `get_info_handler`:**
+    - Moved `InfoResponse` struct and `get_info_handler` function from `crates/goose-server/src/handlers.rs` to `crates/goose-server/src/routes/utils.rs`.
+    - Updated `crates/goose-server/src/routes/mod.rs` to import `get_info_handler` from `utils`.
+    - Deleted the now-empty `crates/goose-server/src/handlers.rs` file.
+- **Created dedicated `info` module:**
+    - Created a new file `crates/goose-server/src/routes/info.rs`.
+    - Moved `InfoResponse` struct and `get_info_handler` function from `crates/goose-server/src/routes/utils.rs` to `crates/goose-server/src/routes/info.rs`.
+    - Updated `crates/goose-server/src/routes/mod.rs` to include `pub mod info;` and to merge `info::routes()`.
+    - Cleaned up `crates/goose-server/src/routes/utils.rs` by removing the moved code.
+
+## 9. Default `goose-cli-lite` Behavior
+
+When `goose-cli-lite` is run without any specific commands, it defaults to starting an interactive session and outputs the following:
+
+```
+starting session | provider: gemini-cli model: gemini-2.5-flash
+    logging to /data/data/com.termux/files/home/.local/share/goose/sessions/20250813_134303.jsonl
+    working directory: /data/data/com.termux/files/home
+
+Goose is running! Enter your instructions, or try asking what goose can do.
+
+Context: ○○○○○○○○○○ 0% (0/1000000 tokens)
+( O)> Press Enter to send, Ctrl-J for new line
+```
