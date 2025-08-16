@@ -1,10 +1,9 @@
 use crate::agents::extension_manager::ExtensionManager;
-use crate::agents::router_tool_selector::{
-    create_tool_selector, RouterToolSelectionStrategy, RouterToolSelector,
-};
+use crate::agents::router_tool_selector::{create_tool_selector, RouterToolSelectionStrategy, RouterToolSelector};
 use crate::agents::router_tools::{self};
 use crate::agents::tool_execution::ToolCallResult;
 use crate::agents::tool_router_index_manager::ToolRouterIndexManager;
+#[cfg(feature = "tool_vectordb")]
 use crate::agents::tool_vectordb::generate_table_id;
 use crate::config::Config;
 use crate::conversation::message::ToolRequest;
@@ -96,11 +95,18 @@ impl ToolRouteManager {
         let strategy = self.get_router_tool_selection_strategy().await;
         let selector = match strategy {
             Some(RouterToolSelectionStrategy::Vector) => {
-                let table_name = generate_table_id();
-                let selector = create_tool_selector(strategy, provider.clone(), Some(table_name))
-                    .await
-                    .map_err(|e| anyhow!("Failed to create tool selector: {}", e))?;
-                Arc::new(selector)
+                #[cfg(feature = "tool_vectordb")]
+                {
+                    let table_name = generate_table_id();
+                    let selector = create_tool_selector(strategy, provider.clone(), Some(table_name))
+                        .await
+                        .map_err(|e| anyhow!("Failed to create tool selector: {}", e))?;
+                    Arc::new(selector)
+                }
+                #[cfg(not(feature = "tool_vectordb"))]
+                {
+                    return Err(anyhow!("Vector tool selection is not enabled. Enable 'tool_vectordb' feature."));
+                }
             }
             Some(RouterToolSelectionStrategy::Llm) => {
                 let selector = create_tool_selector(strategy, provider.clone(), None)
