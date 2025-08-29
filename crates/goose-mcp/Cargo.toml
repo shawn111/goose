@@ -68,3 +68,23 @@ temp-env = "0.3.6"
 
 [features]
 utoipa = ["dep:utoipa"]
+
+[[bin]]
+name = "goose-mcp-autovisualiser"
+path = "src/bin/autovisualiser.rs"
+
+[[bin]]
+name = "goose-mcp-computercontroller"
+path = "src/bin/computercontroller.rs"
+
+[[bin]]
+name = "goose-mcp-developer"
+path = "src/bin/developer.rs"
+
+[[bin]]
+name = "goose-mcp-memory"
+path = "src/bin/memory.rs"
+
+[[bin]]
+name = "goose-mcp-tutorial"
+path = "src/bin/tutorial.rs"
